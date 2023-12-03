@@ -36,9 +36,9 @@ preparedStatement.setLong(3, message.getTime_posted_epoch());
     public List<Message> getAllMessages(){
         Connection connection = ConnectionUtil.getConnection();
         List<Message> messages = new ArrayList<>();
-        System.out.println("GETTING MESSAGES");
+    
         try {
-            //Write SQL logic here
+     
             String sql = "SELECT * FROM Message";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             ResultSet rs = preparedStatement.executeQuery();
@@ -68,7 +68,7 @@ preparedStatement.setLong(3, message.getTime_posted_epoch());
                 Message message = new Message(rs.getInt("message_id"), rs.getInt("posted_by"), rs.getString("message_text"), rs.getLong("time_posted_epoch"));
                return message;
             }
-            System.out.println("MESSAGE BY ID TEST" );
+       
         }catch(SQLException e){
             System.out.println(e.getMessage());
         }
@@ -108,5 +108,24 @@ public Message updateMessage(int id, String text){
         System.out.println(e.getMessage());
     }
     return null;
+}
+public List<Message> getAllMessagesByUser(int id){
+    Connection connection = ConnectionUtil.getConnection();
+    List<Message> messages = new ArrayList<>();
+    System.out.println("GETTING MESSAGES");
+    try {
+ 
+        String sql = "SELECT * FROM Message WHERE posted_by = ?";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setInt(1, id);
+        ResultSet rs = preparedStatement.executeQuery();
+        while(rs.next()){
+            Message message = new Message(rs.getInt("message_id"), rs.getInt("posted_by"), rs.getString("message_text"), rs.getLong("time_posted_epoch"));
+            messages.add(message);
+        }
+    }catch(SQLException e){
+        System.out.println(e.getMessage());
+    }
+    return messages;
 }
 }

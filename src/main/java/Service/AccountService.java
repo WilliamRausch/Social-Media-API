@@ -21,4 +21,9 @@ public class AccountService {
         Account created = accountDAO.insertAccount(account);
         return created;
     }
+    public Account login(String username, String password){
+        Account logged = accountDAO.login(username, password);
+
+        return logged;
+    }
 }

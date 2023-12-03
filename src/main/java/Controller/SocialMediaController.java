@@ -1,5 +1,6 @@
 package Controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import Model.Account;
@@ -38,9 +39,9 @@ public class SocialMediaController {
         app.get("/messages", this::getAllMessagesHandler);
         app.get("messages/{message_id}", this::getMessageHandler);
         app.delete("messages/{message_id}", this::deleteMessageHandler);
-        app.get("localhost:8080/accounts/{account_id}/messages", this::exampleHandler);
+        app.get("accounts/{account_id}/messages", this::getAllMessagesByUserHandler);
         app.patch("messages/{message_id}", this::updateMessageHandler);
-        app.get("example-endpoint", this::exampleHandler);
+        app.post("example-endpoint", this::exampleHandler);
         
 
         return app;
@@ -50,14 +51,33 @@ public class SocialMediaController {
      * This is an example handler for an example endpoint.
      * @param context The Javalin Context object manages information about both the HTTP request and response.
      */
-    private void exampleHandler(Context context) {
-        System.out.println("sample HELLO");
-        context.json("sample text");
+    private void exampleHandler(Context ctx) {
+        ObjectMapper mapper = new ObjectMapper();
+        String body1 = ctx.body();
+    
+        try {
+            Account account=mapper.readValue(body1,Account.class);
+    
+            Account logged = accountService.login(account.getUsername(), account.getPassword());
+            if(logged.account_id != 0){
+            ctx.json(logged);
+            }else{
+                ctx.status(401);
+            }
+        } catch (JsonMappingException e) {
+         
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+         
+            e.printStackTrace();
+        }
+        System.out.println(ctx.body());
+      
     }
     private void createAccountHandle(Context ctx) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(ctx.body(), Account.class);
-        System.out.println("HELLO");
+     
         Account addedAccount = accountService.addAccount(account);
         if(addedAccount!=null){
             ctx.json(mapper.writeValueAsString(addedAccount));
@@ -66,7 +86,7 @@ public class SocialMediaController {
         }
     }
     private void createMessageHandle(Context ctx) throws JsonProcessingException {
-        System.out.println("creating message");
+       
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(ctx.body(), Message.class);
         Message addedMessage = messageService.addMessage(message);
@@ -86,23 +106,20 @@ public class SocialMediaController {
       
         Message message = messageService.getMessage(id2);
         
-        //ctx.json(message);
-        System.out.println("THE BLANK ONE" + message);
+ 
         if (message == null) {
           ctx.json("");
         } else {
             ctx.json(message);
         }
-        System.out.println("GETTING SINGULAR MESSAGE TEST" + id);
+   
     }
     private void deleteMessageHandler(Context ctx) {
         String id = ctx.pathParam("message_id");
         int id2 = Integer.parseInt(id);
       
         Message message = messageService.getMessage(id2);
-        
-        //ctx.json(message);
-        System.out.println("THE BLANK ONE" + message);
+
         if (message == null) {
           ctx.json("");
         } else {
@@ -112,12 +129,16 @@ public class SocialMediaController {
      
     }
     private void updateMessageHandler(Context ctx) {
+        ObjectMapper mapper = new ObjectMapper();
         String id = ctx.pathParam("message_id");
         String messageContents = ctx.body().substring(18, ctx.body().length()-3);
-        int id2 = Integer.parseInt(id);
+        String body1 = ctx.body();
+        try {
+            Message mess=mapper.readValue(body1,Message.class);
+             int id2 = Integer.parseInt(id);
         Message message = messageService.getMessage(id2);
         System.out.println("THE BLANK ONE" + messageContents);
-        if (message == null  || messageContents.length() == 0 || messageContents.length() > 255) {
+        if (message == null  || mess.getMessage_text().length() == 0 || mess.getMessage_text().length() > 255) {
             
             ctx.status(400);
           } else {
@@ -128,5 +149,32 @@ public class SocialMediaController {
             ctx.json(message2);
         
           }
+        } catch (JsonMappingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+       /* int id2 = Integer.parseInt(id);
+        Message message = messageService.getMessage(id2);
+        System.out.println("THE BLANK ONE" + messageContents);
+        if (message == null  || mess.getMessage_text().length() == 0 || mess.getMessage_text().length() > 255) {
+            
+            ctx.status(400);
+          } else {
+             
+     
+            messageService.updateMessage(id2, messageContents);
+            Message message2 = messageService.getMessage(id2);
+            ctx.json(message2);
+        
+          }*/
+    }
+    private void getAllMessagesByUserHandler(Context ctx) {
+       
+        int id =  Integer.parseInt(ctx.pathParam("account_id"));
+        List<Message> messages = messageService.getAllMessagesByUser(id);
+        ctx.json(messages);
     }
 }
