@@ -70,7 +70,7 @@ public class SocialMediaController {
          
             e.printStackTrace();
         }
-        System.out.println(ctx.body());
+      
       
     }
     private void createAccountHandle(Context ctx) throws JsonProcessingException {
@@ -136,7 +136,7 @@ public class SocialMediaController {
             Message mess=mapper.readValue(body1,Message.class);
              int id2 = Integer.parseInt(id);
         Message message = messageService.getMessage(id2);
-        System.out.println("THE BLANK ONE" + messageContents);
+   
         if (message == null  || mess.getMessage_text().length() == 0 || mess.getMessage_text().length() > 255) {
             
             ctx.status(400);

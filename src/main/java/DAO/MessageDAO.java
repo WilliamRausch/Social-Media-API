@@ -12,7 +12,7 @@ public class MessageDAO {
     public Message insertMessage(Message message){
         Connection connection = ConnectionUtil.getConnection();
         if(!message.message_text.isBlank()){
-            System.out.println("LENGTH PASSED");
+         
      try{
             String sql = "INSERT INTO MESSAGE (posted_by, message_text, time_posted_epoch) VALUES ( ?, ?, ?);" ;
             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
