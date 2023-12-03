@@ -113,15 +113,20 @@ public class SocialMediaController {
     }
     private void updateMessageHandler(Context ctx) {
         String id = ctx.pathParam("message_id");
+        String messageContents = ctx.body().substring(18, ctx.body().length()-3);
         int id2 = Integer.parseInt(id);
         Message message = messageService.getMessage(id2);
-      
-
+        System.out.println("THE BLANK ONE" + messageContents);
+        if (message == null  || messageContents.length() == 0 || messageContents.length() > 255) {
+            
+            ctx.status(400);
+          } else {
+             
      
-            messageService.updateMessage(id2, "updated message");
+            messageService.updateMessage(id2, messageContents);
             Message message2 = messageService.getMessage(id2);
             ctx.json(message2);
         
-     
+          }
     }
 }
