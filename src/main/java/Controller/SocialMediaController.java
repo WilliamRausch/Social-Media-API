@@ -32,7 +32,6 @@ public class SocialMediaController {
     public Javalin startAPI() {
 
         Javalin app = Javalin.create();
-        System.out.println("THIS IS A TESTTTTT");
         app.post("/register", this::createAccountHandle);
         app.post("/login", this::exampleHandler);
         app.post("/messages", this::createMessageHandle);
